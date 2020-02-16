@@ -1,0 +1,45 @@
+{
+  "name": "sourcebit-sample-plugin",
+  "version": "0.3.0",
+  "description": "A sample Sourcebit plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run format",
+    "format": "prettier --write \"./**/*.{js,jsx,md,html}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stackbithq/sourcebit-sample-plugin.git"
+  },
+  "keywords": [
+    "headless",
+    "headless-cms",
+    "jamstack",
+    "ssg"
+  ],
+  "author": "Stackbit",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stackbithq/sourcebit-sample-plugin/issues"
+  },
+  "homepage": "https://github.com/stackbithq/sourcebit-sample-plugin#readme",
+  "devDependencies": {
+    "husky": "^4.0.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,md,html}": [
+      "npm run format",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
+}
