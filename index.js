@@ -167,6 +167,7 @@ module.exports.transform = ({
     source: pkg.name,
     modelName: "reddit-post",
     modelLabel: "Reddit Post",
+    projectId: options.subredditName,
     fieldNames: ["title", "url", "subreddit"]
   };
 
