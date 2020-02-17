@@ -1,6 +1,6 @@
 {
-  "name": "sourcebit-sample-plugin",
-  "version": "0.3.0",
+  "name": "sourcebit-source-reddit",
+  "version": "0.1.0",
   "description": "A sample Sourcebit plugin",
   "main": "index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "snoowrap": "^1.20.1"
   }
 }

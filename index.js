@@ -1,3 +1,4 @@
+const snoowrap = require("snoowrap");
 const axios = require("axios");
 const pkg = require("./package.json");
 
@@ -36,29 +37,7 @@ module.exports.name = pkg.name;
  *                                                           *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 module.exports.options = {
-  mySecret: {
-    // 👉 The value will be read from `process.env.MY_SECRET`.
-    env: "MY_SECRET",
-
-    // 👉 When running the interactive setup process, this
-    // option will be stored in an `.env` file instead of the
-    // main configuration file.
-    private: true
-  },
-  watch: {
-    // 👉 By default, the value of this option will be `false`.
-    default: false,
-
-    // 👉 The value for this option will be read from the `watch`
-    // runtime parameter, which means that if the user starts
-    // Sourcebit with `sourcebit fetch --watch`, then the value
-    // of this option will be set to `true`, regardless of any
-    // other value defined in the configuration file.
-    runtimeParameter: "watch"
-  },
-  titleCase: {
-    default: false
-  }
+  subredditName: {}
 };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -110,9 +89,23 @@ module.exports.bootstrap = async ({
   if (context && context.entries) {
     log(`Loaded ${context.entries.length} entries from cache`);
   } else {
-    const { data: entries } = await axios.get(
-      "https://jsonplaceholder.typicode.com/posts"
+    const { data } = await axios.post(
+      "https://www.reddit.com/api/v1/access_token",
+      "grant_type=https://oauth.reddit.com/grants/installed_client&device_id=sourcebit-source-reddit",
+      {
+        headers: {
+          Authorization:
+            "Basic aFJ0TDBPMkEzU2gzNXc6XzBIVUtjLXVNS0Fuc0w0R1FyWVNqTWFIdGpN"
+        }
+      }
     );
+
+    const r = new snoowrap({
+      userAgent: "sourcebit-source-reddit",
+      accessToken: data.access_token
+    });
+
+    const entries = await r.getHot(options.subredditName);
 
     log(`Loaded ${entries.length} entries`);
     debug("Initial entries: %O", entries);
@@ -122,29 +115,6 @@ module.exports.bootstrap = async ({
     setPluginContext({
       entries
     });
-  }
-
-  // 👉 If the `watch` option is enabled, we set up a polling routine
-  // that checks for changes in the data source. In a real-world plugin,
-  // you'd be doing things like making regular calls to an API to check
-  // whenever something changes.
-  if (options.watch) {
-    setInterval(() => {
-      const { entries } = getPluginContext();
-      const entryIndex = Math.floor(Math.random() * entries.length);
-
-      entries[entryIndex].body = entries[entryIndex].body + " (updated)";
-
-      log(`Updated entry #${entryIndex}`);
-      debug("Updated entries: %O", entries);
-
-      // 👉 We take the new entries array and update the plugin context.
-      setPluginContext({ entries });
-
-      // 👉 After updating the context, we must communicate the change and
-      // the need for all plugins to re-run in order to act on the new data.
-      refresh();
-    }, 3000);
   }
 };
 
@@ -195,11 +165,9 @@ module.exports.transform = ({
   // models to the `models` data bucket.
   const model = {
     source: pkg.name,
-    modelName: "sample-data",
-    modelLabel: "Mock data",
-    projectId: "12345",
-    projectEnvironment: "master",
-    fieldNames: ["firstName", "lastName", "points"]
+    modelName: "reddit-post",
+    modelLabel: "Reddit Post",
+    fieldNames: ["title", "url", "subreddit"]
   };
 
   // 👉 The main purpose of this method is to normalize the
@@ -282,10 +250,9 @@ module.exports.getSetup = ({
 }) => {
   const questions = [
     {
-      type: "confirm",
-      name: "titleCase",
-      message: "Do you want to convert the title field to title-case?",
-      default: currentOptions.pointsForJane || false
+      type: "input",
+      name: "subredditName",
+      message: `Subreddit:`
     }
   ];
 
@@ -296,14 +263,7 @@ module.exports.getSetup = ({
   // a function which, when executed, must return a Promise with
   // an answers object.
   return async () => {
-    const spinner = ora("Crunching some numbers...").start();
-
-    // ⏳ await runSomeAsyncTask();
-
-    spinner.succeed();
-
     const answers = await inquirer.prompt(questions);
-
     return answers;
   };
 };
@@ -346,6 +306,6 @@ module.exports.getOptionsFromSetup = ({
   // values generated in the setup process before they're added
   // to the configuration file.
   return {
-    titleCase: answers.titleCase
+    subredditName: answers.subredditName
   };
 };
