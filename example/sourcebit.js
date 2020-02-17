@@ -18,17 +18,15 @@ module.exports = {
 
           if (!meta) return;
 
-          const { createdAt = "", modelName, projectId, source } = meta;
-
+          const { modelName, source } = meta;
           if (
             modelName === "reddit-post" &&
-            projectId === "undefined" &&
             source === "sourcebit-source-reddit"
           ) {
             const { __metadata, ...fields } = entry;
 
             return {
-              append: false,
+              append: true,
               content: fields,
               format: "json",
               path: "_data/reddit-post.json"

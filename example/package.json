@@ -6,10 +6,8 @@
     "sourcebit-node": "node index.js"
   },
   "dependencies": {
-    "create-sourcebit": "^0.6.0",
     "sourcebit": "^0.4.0",
-    "sourcebit-target-jekyll": "^0.4.0",
-    "sourcebit-transform-assets": "^0.2.0"
+    "sourcebit-target-jekyll": "^0.4.0"
   },
   "version": "1.0.0",
   "devDependencies": {},

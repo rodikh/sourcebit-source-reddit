@@ -182,8 +182,9 @@ module.exports.transform = ({
       : entry.title;
 
     return {
-      ...entry,
       title,
+      url: entry.url,
+      subreddit: entry.subreddit,
       __metadata: model
     };
   });
